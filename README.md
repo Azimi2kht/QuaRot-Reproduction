@@ -53,11 +53,11 @@ The local reconstruction error falls by **19.6×**. This single-layer measuremen
 
 ![Activation magnitude envelopes](figures/activation_envelopes.png)
 
-These results cover one model and one calibration/rotation seed. Packed INT4 inference throughput and memory savings were not measured. See the [full report](REPORT.md), [standalone report with embedded plots](report.html), and [machine-readable summary](figures/summary.json) for methodology and limitations.
+These results cover one model and one calibration/rotation seed. Packed INT4 inference throughput and memory savings were not measured. See the [full report](REPORT.md) and [machine-readable summary](figures/summary.json) for methodology and limitations.
 
 ## Repository contents and setup
 
-Git includes the report, standalone HTML report, figures, scripts, dependency lock, compact measured results and validation records. Model weights, datasets, tensor dumps, raw per-example benchmark outputs, logs and the local environment are excluded. These files remain on the original machine. The compact six-task scores and split counts are retained in `references/full-task-validation.json` and `figures/summary.json`.
+Git includes the Markdown report, figures, scripts, dependency lock, compact measured results and validation records. Model weights, datasets, tensor dumps, raw per-example benchmark outputs, logs and the local environment are excluded. These files remain on the original machine. The compact six-task scores and split counts are retained in `references/full-task-validation.json` and `figures/summary.json`.
 
 Fetch the pinned upstream code and apply the compatibility changes before running:
 
