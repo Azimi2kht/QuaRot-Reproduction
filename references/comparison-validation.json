@@ -1,0 +1,30 @@
+{
+  "matched_quantization_settings": {
+    "seed": 0,
+    "nsamples": 128,
+    "cal_dataset": "wikitext2",
+    "w_bits": 4,
+    "a_bits": 4,
+    "k_bits": 4,
+    "v_bits": 4,
+    "w_groupsize": -1,
+    "a_groupsize": -1,
+    "k_groupsize": 64,
+    "v_groupsize": 64,
+    "w_clip": true,
+    "w_asym": false,
+    "a_asym": false,
+    "k_asym": true,
+    "v_asym": true,
+    "a_clip_ratio": 0.9,
+    "k_clip_ratio": 0.95,
+    "v_clip_ratio": 0.95,
+    "percdamp": 0.01,
+    "act_order": false,
+    "int8_down_proj": false
+  },
+  "all_perplexities_finite": true,
+  "evaluation_sequences": 148,
+  "sequence_length": 2048,
+  "checkpoint_revision": "effd688a12921b4cc83e3312b6feb579f70f9c71"
+}

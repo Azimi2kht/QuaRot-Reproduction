@@ -1,0 +1,149 @@
+{
+  "baseline": {
+    "ppl": 8.110332489013672,
+    "seconds": 66.93926111000019,
+    "peak_gpu_allocated_gib": 3.6235175132751465,
+    "ppl_delta": 0.0,
+    "ppl_relative_change_percent": 0.0
+  },
+  "rotation_only": {
+    "ppl": 8.11130142211914,
+    "seconds": 118.42740410799979,
+    "peak_gpu_allocated_gib": 3.6235108375549316,
+    "ppl_delta": 0.00096893310546875,
+    "ppl_relative_change_percent": 0.011946897451875493
+  },
+  "unrotated_4bit": {
+    "ppl": 135309056.0,
+    "seconds": 453.0487226800001,
+    "peak_gpu_allocated_gib": 4.75337028503418,
+    "ppl_delta": 135309047.8896675,
+    "ppl_relative_change_percent": 1668353893.911974
+  },
+  "quarot_4bit": {
+    "ppl": 11.33011245727539,
+    "seconds": 906.9023627049999,
+    "peak_gpu_allocated_gib": 3.6283483505249023,
+    "ppl_delta": 3.2197799682617188,
+    "ppl_relative_change_percent": 39.699728372705565
+  },
+  "activation_hook_comparison": {
+    "original": {
+      "abs_max": 1.419921875,
+      "rms": 0.0922573390796398,
+      "max_over_rms": 15.390882602567512,
+      "abs_p99": 0.24365234375,
+      "int4_mse": 0.0017308717360720038,
+      "int4_nmse": 0.2033588313857962,
+      "int4_sqnr_db": 6.917369624832144
+    },
+    "rotated": {
+      "abs_max": 4.37109375,
+      "rms": 0.999998867511108,
+      "max_over_rms": 4.371098700220724,
+      "abs_p99": 2.482421875,
+      "int4_mse": 0.01584608666598797,
+      "int4_nmse": 0.0158461225570832,
+      "int4_sqnr_db": 18.00076989476003
+    },
+    "caveat": "Original post-norm scale is fused into weights for rotated model; hook values include parameterization change."
+  },
+  "isolated_rotation": {
+    "original_normalized": {
+      "abs_max": 44.90909194946289,
+      "rms": 0.9999904632113608,
+      "max_over_rms": 44.90952024206533,
+      "abs_p99": 2.6559693813323975,
+      "int4_mse": 0.310811847448349,
+      "int4_nmse": 0.31081777582694675,
+      "int4_sqnr_db": 5.074941516381881
+    },
+    "directly_rotated": {
+      "abs_max": 4.356868267059326,
+      "rms": 0.9999904632113608,
+      "max_over_rms": 4.356909817987381,
+      "abs_p99": 2.4830405712127686,
+      "int4_mse": 0.015850888565182686,
+      "int4_nmse": 0.015851190902655653,
+      "int4_sqnr_db": 17.999381036025326
+    },
+    "relative_norm_error": 1.7114265502062976e-08,
+    "relative_activation_agreement_error": 0.010563703163086652
+  },
+  "rotation_logit_agreement": {
+    "max_absolute_error": 1.8359375,
+    "relative_l2_error": 0.025667503476142883,
+    "top1_agreement_percent": 96.875,
+    "sampled_token_positions": 32
+  },
+  "zero_shot": {
+    "baseline": {
+      "piqa": {
+        "metric": "acc_norm,none",
+        "accuracy_percent": 77.63873775843308,
+        "examples": 1838
+      },
+      "winogrande": {
+        "metric": "acc,none",
+        "accuracy_percent": 66.06156274664562,
+        "examples": 1267
+      },
+      "hellaswag": {
+        "metric": "acc_norm,none",
+        "accuracy_percent": 71.42003584943238,
+        "examples": 10042
+      },
+      "arc_easy": {
+        "metric": "acc_norm,none",
+        "accuracy_percent": 73.48484848484848,
+        "examples": 2376
+      },
+      "arc_challenge": {
+        "metric": "acc_norm,none",
+        "accuracy_percent": 47.525597269624576,
+        "examples": 1172
+      },
+      "lambada_openai": {
+        "metric": "acc,none",
+        "accuracy_percent": 67.59169415874247,
+        "examples": 5153
+      },
+      "mean_accuracy_percent": 67.28707937795444
+    },
+    "quarot_4bit": {
+      "piqa": {
+        "metric": "acc_norm,none",
+        "accuracy_percent": 71.9804134929271,
+        "examples": 1838
+      },
+      "winogrande": {
+        "metric": "acc,none",
+        "accuracy_percent": 57.14285714285714,
+        "examples": 1267
+      },
+      "hellaswag": {
+        "metric": "acc_norm,none",
+        "accuracy_percent": 62.6867157936666,
+        "examples": 10042
+      },
+      "arc_easy": {
+        "metric": "acc_norm,none",
+        "accuracy_percent": 65.31986531986533,
+        "examples": 2376
+      },
+      "arc_challenge": {
+        "metric": "acc_norm,none",
+        "accuracy_percent": 38.6518771331058,
+        "examples": 1172
+      },
+      "lambada_openai": {
+        "metric": "acc,none",
+        "accuracy_percent": 52.784785561808654,
+        "examples": 5153
+      },
+      "mean_accuracy_percent": 58.094419074038434
+    },
+    "accuracy_retention_percent": 86.33814933134423,
+    "mean_accuracy_delta_pp": -9.192660303916007
+  }
+}

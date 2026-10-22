@@ -1,0 +1,12 @@
+{
+  "platform": "Linux-6.18.40.1-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+  "python": "3.10.22",
+  "torch": "2.2.1+cu121",
+  "cuda_runtime": "12.1",
+  "cpu": "",
+  "cpu_logical_count": 32,
+  "ram_bytes": 16609329152,
+  "gpu": "NVIDIA GeForce RTX 4080",
+  "gpu_total_bytes": 17170956288,
+  "nvidia_smi": "name, driver_version, memory.total [MiB]\nNVIDIA GeForce RTX 4080, 595.97, 16376 MiB\n"
+}

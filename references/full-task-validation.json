@@ -1,0 +1,74 @@
+{
+  "baseline": {
+    "tasks": {
+      "piqa": {
+        "examples": 1838,
+        "metric": "acc_norm,none",
+        "accuracy_percent": 77.63873775843308
+      },
+      "winogrande": {
+        "examples": 1267,
+        "metric": "acc,none",
+        "accuracy_percent": 66.06156274664562
+      },
+      "hellaswag": {
+        "examples": 10042,
+        "metric": "acc_norm,none",
+        "accuracy_percent": 71.42003584943238
+      },
+      "arc_easy": {
+        "examples": 2376,
+        "metric": "acc_norm,none",
+        "accuracy_percent": 73.48484848484848
+      },
+      "arc_challenge": {
+        "examples": 1172,
+        "metric": "acc_norm,none",
+        "accuracy_percent": 47.525597269624576
+      },
+      "lambada_openai": {
+        "examples": 5153,
+        "metric": "acc,none",
+        "accuracy_percent": 67.59169415874247
+      }
+    },
+    "mean_accuracy_percent": 67.28707937795444
+  },
+  "quarot_4bit": {
+    "tasks": {
+      "piqa": {
+        "examples": 1838,
+        "metric": "acc_norm,none",
+        "accuracy_percent": 71.9804134929271
+      },
+      "winogrande": {
+        "examples": 1267,
+        "metric": "acc,none",
+        "accuracy_percent": 57.14285714285714
+      },
+      "hellaswag": {
+        "examples": 10042,
+        "metric": "acc_norm,none",
+        "accuracy_percent": 62.6867157936666
+      },
+      "arc_easy": {
+        "examples": 2376,
+        "metric": "acc_norm,none",
+        "accuracy_percent": 65.31986531986533
+      },
+      "arc_challenge": {
+        "examples": 1172,
+        "metric": "acc_norm,none",
+        "accuracy_percent": 38.6518771331058
+      },
+      "lambada_openai": {
+        "examples": 5153,
+        "metric": "acc,none",
+        "accuracy_percent": 52.784785561808654
+      }
+    },
+    "mean_accuracy_percent": 58.094419074038434
+  },
+  "difference_percentage_points": -9.192660303916007,
+  "accuracy_retention_percent": 86.33814933134423
+}

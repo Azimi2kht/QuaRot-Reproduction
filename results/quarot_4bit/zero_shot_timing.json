@@ -1,0 +1,11 @@
+{
+  "seconds": 1183.089426912,
+  "attention_backend": "sdpa",
+  "batch_size": "auto:4",
+  "num_fewshot": 0,
+  "example_limit_per_task": null,
+  "hadamard_backend": "official fast-hadamard-transform 1.0.4.post1 CUDA wheel",
+  "peak_cuda_allocated_bytes": 9926824960,
+  "model_source": "HuggingFaceTB/SmolLM2-1.7B",
+  "model_revision": "effd688a12921b4cc83e3312b6feb579f70f9c71"
+}

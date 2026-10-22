@@ -1,0 +1,139 @@
+diff --git a/fake_quant/eval_utils.py b/fake_quant/eval_utils.py
+index fc3561b..a998859 100644
+--- a/fake_quant/eval_utils.py
++++ b/fake_quant/eval_utils.py
+@@ -15,7 +15,7 @@ def evaluator(model, testenc, dev, args):
+     if 'opt' in args.model:
+         opt_type = True
+         llama_type = False
+-    elif 'meta' in args.model:
++    elif isinstance(model, model_utils.LLAMA_MODEL):
+         llama_type = True
+         opt_type = False
+     else:
+@@ -66,6 +66,7 @@ def evaluator(model, testenc, dev, args):
+             cache['attention_mask'] = kwargs['attention_mask']
+             if llama_type:
+                 cache['position_ids'] = kwargs['position_ids']
++                cache['cache_position'] = kwargs.get('cache_position')
+             raise ValueError
+     layers[0] = Catcher(layers[0])
+    
+@@ -108,7 +109,8 @@ def evaluator(model, testenc, dev, args):
+             if opt_type:
+                 outs[j] = layer(inps[j], attention_mask=attention_mask)[0]
+             elif llama_type:
+-                outs[j] = layer(inps[j], attention_mask=attention_mask, position_ids=position_ids)[0]
++                outs[j] = layer(inps[j], attention_mask=attention_mask, position_ids=position_ids,
++                                cache_position=cache['cache_position'])[0]
+         layers[i] = layer.cpu()
+         del layer
+         torch.cuda.empty_cache()
+diff --git a/fake_quant/gptq_utils.py b/fake_quant/gptq_utils.py
+index bb7d1f0..1876093 100644
+--- a/fake_quant/gptq_utils.py
++++ b/fake_quant/gptq_utils.py
+@@ -167,6 +167,7 @@ def gptq_fwrd(model, dataloader, dev, args):
+             cache['i'] += 1
+             cache['attention_mask'] = kwargs['attention_mask']
+             cache['position_ids'] = kwargs['position_ids']
++            cache['cache_position'] = kwargs.get('cache_position')
+             raise ValueError
+     layers[0] = Catcher(layers[0])
+     for batch in dataloader:
+@@ -223,7 +224,8 @@ def gptq_fwrd(model, dataloader, dev, args):
+             for name in subset:
+                 handles.append(subset[name].register_forward_hook(add_batch(name)))
+             for j in range(args.nsamples):
+-                outs[j] = layer(inps[j].unsqueeze(0), attention_mask=attention_mask, position_ids=position_ids)[0]
++                outs[j] = layer(inps[j].unsqueeze(0), attention_mask=attention_mask, position_ids=position_ids,
++                                cache_position=cache['cache_position'])[0]
+             for h in handles:
+                 h.remove()
+ 
+@@ -236,7 +238,8 @@ def gptq_fwrd(model, dataloader, dev, args):
+                 gptq[name].free()
+ 
+         for j in range(args.nsamples):
+-            outs[j] = layer(inps[j].unsqueeze(0), attention_mask=attention_mask, position_ids=position_ids)[0]
++            outs[j] = layer(inps[j].unsqueeze(0), attention_mask=attention_mask, position_ids=position_ids,
++                            cache_position=cache['cache_position'])[0]
+ 
+         layers[i] = layer.cpu()
+         del layer
+diff --git a/fake_quant/main.py b/fake_quant/main.py
+index 8b44b5a..eaebdfa 100644
+--- a/fake_quant/main.py
++++ b/fake_quant/main.py
+@@ -50,14 +50,13 @@ def main():
+     if args.w_bits < 16:
+         save_dict = {}
+         if args.load_qmodel_path: # Load Quantized Rotated Model
+-            assert args.rotate, "Model should be rotated to load a quantized model!"
+             assert not args.save_qmodel_path, "Cannot save a quantized model if it is already loaded!"
+             print("Load quantized model from ", args.load_qmodel_path)
+-            save_dict = torch.load(args.load_qmodel_path)
++            save_dict = torch.load(args.load_qmodel_path, map_location='cpu')
+             model.load_state_dict(save_dict["model"])
+             
+         elif not args.w_rtn: # GPTQ Weight Quantization
+-            assert "llama" in args.model, "Only llama is supported for GPTQ!"
++            assert isinstance(model, model_utils.LLAMA_MODEL), "Only Llama architecture is supported for GPTQ!"
+             
+             trainloader = data_utils.get_loaders(
+                 args.cal_dataset, nsamples=args.nsamples,
+@@ -154,7 +153,7 @@ def main():
+     else:
+         model.to(utils.DEV)
+     
+-    tokenizer = transformers.AutoTokenizer.from_pretrained(args.model, use_fast=False, use_auth_token=args.hf_token)
++    tokenizer = transformers.AutoTokenizer.from_pretrained(model.name_or_path, use_fast=False, use_auth_token=args.hf_token)
+     hflm = HFLM(pretrained=model, tokenizer=tokenizer, batch_size=args.lm_eval_batch_size)
+ 
+     task_names = lm_eval_utils.pattern_match(args.tasks, ALL_TASKS)
+diff --git a/fake_quant/quant_utils.py b/fake_quant/quant_utils.py
+index 6685fc0..cb94cf7 100644
+--- a/fake_quant/quant_utils.py
++++ b/fake_quant/quant_utils.py
+@@ -152,7 +152,7 @@ class ActQuantizer(torch.nn.Module):
+         if self.groupsize > 0:
+             # group-wise per-token quantization
+             self.find_params_per_token_groupwise(x)
+-            utils.cleanup_memory(verbos=False)
++            # Keep allocator/GC cleanup outside this per-token inference hot path.
+             return
+ 
+         reshaped_x = x.reshape((-1, x.shape[-1]))
+@@ -370,7 +370,11 @@ def add_actquant(module, name='', layers=[torch.nn.Linear,
+     if isinstance(module, ActQuantWrapper):
+         return
+     for attr in dir(module):
+-        tmp = getattr(module, attr)
++        # Transformers 4.38 exposes RoPE cache properties before their first use.
++        try:
++            tmp = getattr(module, attr)
++        except AttributeError:
++            continue
+         if type(tmp) in layers:
+             setattr(module, attr, ActQuantWrapper(tmp))
+         if type(tmp) == torch.nn.Sequential:
+diff --git a/fake_quant/utils.py b/fake_quant/utils.py
+index a31a067..fdc7f50 100644
+--- a/fake_quant/utils.py
++++ b/fake_quant/utils.py
+@@ -180,7 +180,7 @@ def parser_gen():
+         nargs='+',
+         default=["piqa", "hellaswag", "arc_easy", "arc_challenge", "winogrande", "lambada"],
+     )
+-    parser.add_argument('--lm_eval_batch_size', type=int, default=128, help='Batch size for evaluating with lm eval harness.')
++    parser.add_argument('--lm_eval_batch_size', type=str, default='128', help='Harness batch size: integer or auto:N.')
+     parser.add_argument(
+         "--distribute",
+         action="store_true",
+@@ -269,4 +269,4 @@ def distribute_model(model) -> None:
+         state_dict=model.state_dict(),
+     )
+ 
+-    cleanup_memory()
+\ No newline at end of file
++    cleanup_memory()

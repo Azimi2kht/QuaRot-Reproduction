@@ -1,0 +1,10 @@
+{
+  "seconds": 558.8092106209997,
+  "attention_backend": "sdpa",
+  "batch_size": "auto:4",
+  "num_fewshot": 0,
+  "example_limit_per_task": null,
+  "peak_cuda_allocated_bytes": 9927184896,
+  "model_source": "HuggingFaceTB/SmolLM2-1.7B",
+  "model_revision": "effd688a12921b4cc83e3312b6feb579f70f9c71"
+}

@@ -1,0 +1,26 @@
+[
+  {
+    "dimension": 32,
+    "max_abs_error": 0.0,
+    "relative_l2_error": 0.0
+  },
+  {
+    "dimension": 64,
+    "max_abs_error": 0.0,
+    "relative_l2_error": 0.0
+  },
+  {
+    "dimension": 2048,
+    "max_abs_error": 0.0,
+    "relative_l2_error": 0.0
+  },
+  {
+    "dimension": 8192,
+    "max_abs_error": 0.0,
+    "relative_l2_error": 0.0
+  },
+  {
+    "noncontiguous_heads": true,
+    "max_abs_error": 0.0
+  }
+]

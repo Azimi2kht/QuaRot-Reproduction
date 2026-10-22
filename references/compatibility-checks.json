@@ -1,0 +1,4 @@
+{
+  "strict_unrotated_qk_noncontiguous_input": "passed; query unchanged, quantized key finite and correctly shaped",
+  "allocator_cleanup_removal": "bitwise identical grouped-quantization output on FP16 validation tensor"
+}

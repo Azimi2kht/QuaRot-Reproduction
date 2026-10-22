@@ -1,0 +1,43 @@
+# Local Python environment and caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.cache/
+*.egg-info/
+build/
+dist/
+
+# Credentials and local configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Downloaded upstream checkout; pinned revision and patch are documented
+/QuaRot/
+
+# Model weights, datasets, and generated tensor/checkpoint artifacts
+/models/
+/data/
+*.pt
+*.pth
+*.safetensors
+*.ckpt
+*.onnx
+
+# Large raw per-example benchmark dumps; compact metrics remain tracked
+/results/*/zero_shot.json
+/results/*/progress.json
+/logs/
+
+# Editor and operating-system files
+.vscode/
+.idea/
+.DS_Store
+*~
+*.swp
