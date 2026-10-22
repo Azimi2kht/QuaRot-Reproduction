@@ -2,6 +2,59 @@
 
 One model: **SmolLM2-1.7B base**, on RTX 4080 16 GB. See [REPORT.md](REPORT.md) for methodology, results and limitations.
 
+## Measured results
+
+We evaluated **SmolLM2-1.7B base on an RTX 4080 (16 GB)**. This reproduces the QuaRot method on a smaller model; the scores are not a replication of the paper's Llama results. W4A4KV4 denotes 4-bit weights, activations, keys and values, evaluated through floating-point quantization simulation.
+
+### WikiText-2 perplexity
+
+Full test evaluation uses 148 complete sequences of 2,048 tokens. Lower perplexity is better.
+
+| Configuration | Perplexity ↓ |
+|---|---:|
+| FP16 baseline | 8.1103 |
+| Rotation only (FP16) | 8.1113 |
+| Unrotated W4A4KV4 control | 135,309,056.0000 |
+| QuaRot W4A4KV4 | 11.3301 |
+
+Rotation alone leaves perplexity nearly unchanged. QuaRot prevents the catastrophic collapse of the unrotated 4-bit control, but its perplexity remains **39.70% above FP16**.
+
+![FP16 and QuaRot perplexity comparison](figures/perplexity_quality_gap.png)
+
+### Full six-task zero-shot accuracy
+
+All **21,848 evaluation examples** were scored with zero few-shot examples. Values are percentages; the mean is the unweighted arithmetic mean across tasks. `acc_norm` is length-normalized accuracy, following the upstream evaluation convention.
+
+| Task | Examples | Metric | FP16 (%) ↑ | QuaRot (%) ↑ | Change (pp) |
+|---|---:|---|---:|---:|---:|
+| PIQA | 1,838 | acc_norm | 77.64 | 71.98 | -5.66 |
+| WinoGrande | 1,267 | acc | 66.06 | 57.14 | -8.92 |
+| HellaSwag | 10,042 | acc_norm | 71.42 | 62.69 | -8.73 |
+| ARC-Easy | 2,376 | acc_norm | 73.48 | 65.32 | -8.16 |
+| ARC-Challenge | 1,172 | acc_norm | 47.53 | 38.65 | -8.87 |
+| LAMBADA OpenAI | 5,153 | acc | 67.59 | 52.78 | -14.81 |
+| **Mean** | — | — | **67.29** | **58.09** | **-9.19** |
+
+QuaRot retains **86.34%** of FP16 mean accuracy.
+
+![Full six-task accuracy comparison](figures/zero_shot_accuracy.png)
+
+### Effect on activation outliers
+
+A controlled comparison on the same normalized activation tensor (256 token positions at the tenth block's FFN input) isolates the geometric effect of rotation:
+
+| Measure | Before rotation | After rotation |
+|---|---:|---:|
+| Maximum magnitude / RMS ↓ | 44.91 | 4.36 |
+| Normalized INT4 reconstruction MSE ↓ | 0.310818 | 0.015851 |
+| Signal-to-quantization-noise ratio ↑ | 5.07 dB | 18.00 dB |
+
+The local reconstruction error falls by **19.6×**. This single-layer measurement explains the reduction in outliers; end-to-end quality is measured separately above.
+
+![Activation magnitude envelopes](figures/activation_envelopes.png)
+
+These results cover one model and one calibration/rotation seed. Packed INT4 inference throughput and memory savings were not measured. See the [full report](REPORT.md), [standalone report with embedded plots](report.html), and [machine-readable summary](figures/summary.json) for methodology and limitations.
+
 ## Repository contents and setup
 
 Git includes the report, standalone HTML report, figures, scripts, dependency lock, compact measured results and validation records. Model weights, datasets, tensor dumps, raw per-example benchmark outputs, logs and the local environment are excluded. These files remain on the original machine. The compact six-task scores and split counts are retained in `references/full-task-validation.json` and `figures/summary.json`.
