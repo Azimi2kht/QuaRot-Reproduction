@@ -20,6 +20,26 @@ RTX 4080 with 16,376 MiB VRAM; approximately 15 GiB host RAM; 4 GiB swap. SmolLM
 
 FP16 checkpoint weights require approximately 3.2 GiB. Untying the shared embedding/output head for safe independent rotation adds about 0.19 GiB. GPTQ's two 128 × 2048 × 2048 FP16 activation buffers require 2 GiB. FP16 KV cache at batch 1 and 2048 tokens would require 0.375 GiB; cache is disabled for perplexity. These estimates exclude working tensors and allocator reserve; actual peaks will be measured.
 
+## Model size and storage reduction
+
+**Packed INT4 would reduce the quantized linear-weight payload by 75% (4× smaller) compared with FP16**, since each weight uses 4 rather than 16 bits. This is a bit-width calculation, not a measured packed checkpoint from this experiment. The whole model has a smaller estimated reduction because embeddings and the output head remain FP16, and rotation requires an independent output-head copy in our implementation.
+
+Counts from the downloaded safetensors header give 1,610,612,736 quantized decoder linear weights, 100,663,296 embedding weights and 100,352 remaining parameters. The original checkpoint shares embedding/output-head storage. For a packed estimate matching our untied setup, retain two FP16 embedding-sized matrices and conservatively retain the remaining parameters at FP16:
+
+`packed payload = 1,610,612,736 × 0.5 + (2 × 100,663,296 + 100,352) × 2 = 1,208,160,256 bytes`.
+
+| Weight-storage comparison | Size (GiB) | Reduction |
+|---|---:|---|
+| Original tied FP16 parameter payload | 3.188 | Reference |
+| Untied FP16 parameter payload used for rotation | 3.375 | Adds the independent output head |
+| Estimated mixed INT4/FP16 payload | 1.125 | **64.70% smaller (2.83×) than original tied FP16**, or 66.66% smaller than untied FP16 |
+| Actual downloaded FP16 safetensors file | 3.188 | Measured file size |
+| Actual saved QuaRot simulation checkpoint | 3.380 | **No disk-size reduction**; 6.04% larger than the downloaded file |
+
+GiB means 2³⁰ bytes. The packed estimate excludes quantization scales, zero points, alignment, serialization metadata and implementation-specific buffers, so a deployed file would be larger. It is an estimate for a future packed export, not a file produced here. The saved `model.pt` contains floating-point representations of quantized values and auxiliary state; it does not pack weights into 4-bit integers. Consequently, **the actual experiment demonstrates accuracy under 4-bit quantization, but does not demonstrate compressed checkpoint storage or reduced inference VRAM**. Measured peak PyTorch allocation was approximately 3.62 GiB for FP16 and 3.63 GiB for QuaRot during perplexity evaluation.
+
+For KV tensors, an ideal packed 4-bit payload also uses 75% less storage than FP16 before scale/zero-point overhead: the batch-1, 2,048-token cache estimate would fall from 0.375 GiB to 0.09375 GiB. Cache is disabled for perplexity and no packed cache is implemented in this reproduction, so this is theoretical rather than a measured saving. Counts and file sizes are retained in `references/storage-size-analysis.json`.
+
 ## Protocol
 
 Full WikiText-2 test perplexity: 148 complete sequences (303,104 input tokens and 302,956 scored next-token predictions), sequence length 2048, concatenating documents with two newlines, dropping the final partial block. Calibration: 128 WikiText-2 training sequences, length 2048, seed 0. GPTQ symmetric per-output-channel weights with the official code’s default clipping search (error exponent 2.4); symmetric per-token activations, clip ratio 0.9; asymmetric keys/values clipped at 0.95. KV group size is **64**, adapted to this model's head dimension rather than the paper models' 128. Weights, activations, keys and values are quantized to 4 bits; embeddings/head and other operations follow the upstream full-precision exceptions.

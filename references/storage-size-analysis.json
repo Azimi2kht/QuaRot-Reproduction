@@ -1,0 +1,14 @@
+{
+  "quantized_linear_parameters": 1610612736,
+  "original_unique_parameters": 1711376384,
+  "embedding_parameters": 100663296,
+  "remaining_parameters": 100352,
+  "original_fp16_payload_bytes": 3422752768,
+  "untied_fp16_payload_bytes": 3624079360,
+  "estimated_mixed_int4_payload_bytes_excluding_metadata": 1208160256,
+  "estimated_reduction_vs_original_percent": 64.70208811763058,
+  "estimated_compression_vs_original": 2.8330287732954527,
+  "estimated_reduction_vs_untied_percent": 66.66297462095312,
+  "source_checkpoint_bytes": 3422777952,
+  "simulation_checkpoint_bytes": 3629619687
+}
