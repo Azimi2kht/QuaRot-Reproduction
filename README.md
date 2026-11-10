@@ -103,3 +103,8 @@ These are floating-point simulations of quantization. Perplexity/GPTQ used the e
 The RMSNorm scales are fused into adjacent weights for rotation. Hook plots therefore include this equivalent reparameterization. `isolated_rotation` in `figures/summary.json` quantizes the same normalized tensor before and after the saved orthogonal transform to isolate the geometric effect.
 
 SmolLM2 ties embeddings to the output head. The loader makes an identical copy before independently transforming the two matrices. Quantization settings otherwise follow the paper, adapting KV group size from 128 to this model's 64-element attention heads. Differences from upstream are retained in `references/upstream-changes.patch`.
+
+## Contributors
+
+- [@hjafari890](https://github.com/hjafari890) - team member
+
